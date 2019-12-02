@@ -47,6 +47,7 @@ export default function closest(element, value) {
   let current = element;
 
   do {
+    // what's correspondingElement?
     current = current.correspondingUseElement || current.correspondingElement || current;
 
     if (conditionFn(current)) {

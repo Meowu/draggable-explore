@@ -156,6 +156,7 @@ export default class Draggable {
     this.on('mirror:created', ({mirror}) => (this.mirror = mirror));
     this.on('mirror:destroy', () => (this.mirror = null));
 
+    // 初始化后 dragging 实例存在，表示 isDragging 。
     this.trigger(draggableInitializedEvent);
   }
 
@@ -363,6 +364,7 @@ export default class Draggable {
     this.originalSource = closest(target, this.options.draggable);
     this.sourceContainer = container;
 
+    // duplicated code, this should be placed 10 loc before.
     if (!this.originalSource) {
       sensorEvent.cancel();
       return;
@@ -387,11 +389,11 @@ export default class Draggable {
 
     this.trigger(dragEvent);
 
-    this.dragging = !dragEvent.canceled();
+    this.dragging = !dragEvent.canceled(); // we may call event.cancel() to stop it.
 
     if (dragEvent.canceled()) {
       this.source.parentNode.removeChild(this.source);
-      this.originalSource.style.display = null;
+      this.originalSource.style.display = null; // will this differentiate with 'none' ?
       return;
     }
 
@@ -399,7 +401,7 @@ export default class Draggable {
     this.source.classList.add(this.getClassNameFor('source:dragging'));
     this.sourceContainer.classList.add(this.getClassNameFor('container:dragging'));
     document.body.classList.add(this.getClassNameFor('body:dragging'));
-    applyUserSelect(document.body, 'none');
+    applyUserSelect(document.body, 'none'); // disable select event.
 
     requestAnimationFrame(() => {
       const oldSensorEvent = getSensorEvent(event);
@@ -433,7 +435,7 @@ export default class Draggable {
       sensorEvent,
     });
 
-    this.trigger(dragMoveEvent);
+    this.trigger(dragMoveEvent); // 先触发 move 事件；
 
     if (dragMoveEvent.canceled()) {
       sensorEvent.cancel();
@@ -456,6 +458,7 @@ export default class Draggable {
         over: this.currentOver,
       });
 
+      //  set currentOver if over new target.
       this.currentOver.classList.remove(this.getClassNameFor('draggable:over'));
       this.currentOver = null;
 
@@ -536,13 +539,14 @@ export default class Draggable {
     this.source.parentNode.removeChild(this.source);
     this.originalSource.style.display = '';
 
+    // what's the difference between source and originalSource?
     this.source.classList.remove(this.getClassNameFor('source:dragging'));
     this.originalSource.classList.remove(this.getClassNameFor('source:original'));
     this.originalSource.classList.add(this.getClassNameFor('source:placed'));
     this.sourceContainer.classList.add(this.getClassNameFor('container:placed'));
     this.sourceContainer.classList.remove(this.getClassNameFor('container:dragging'));
     document.body.classList.remove(this.getClassNameFor('body:dragging'));
-    applyUserSelect(document.body, '');
+    applyUserSelect(document.body, ''); // enable userSelect?
 
     if (this.currentOver) {
       this.currentOver.classList.remove(this.getClassNameFor('draggable:over'));
@@ -566,7 +570,7 @@ export default class Draggable {
 
       this.lastPlacedSource = null;
       this.lastPlacedContainer = null;
-    }, this.options.placedTimeout);
+    }, this.options.placedTimeout); // why we need placedTimeout?
 
     this.source = null;
     this.originalSource = null;
@@ -599,7 +603,7 @@ export default class Draggable {
 }
 
 function getSensorEvent(event) {
-  return event.detail;
+  return event.detail; // Whatever data the event was initialized with.
 }
 
 function applyUserSelect(element, value) {
