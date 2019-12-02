@@ -60,6 +60,7 @@ export default class MouseSensor extends Sensor {
    * @param {Event} event - Mouse down event
    */
   [onMouseDown](event) {
+    // only works with mouse left.
     if (event.button !== 0 || event.ctrlKey || event.metaKey) {
       return;
     }
@@ -79,8 +80,9 @@ export default class MouseSensor extends Sensor {
 
     this.currentContainer = container;
     this.mouseDownTimeout = setTimeout(() => {
-      this.delayOver = true;
+      this.delayOver = true; // means called after delayed?
       if (this.distance < this.options.distance) {
+        // distance larger than set distance do nothing ?
         return;
       }
       this[startDrag]();
@@ -170,7 +172,7 @@ export default class MouseSensor extends Sensor {
       return;
     }
 
-    const target = document.elementFromPoint(event.clientX, event.clientY);
+    const target = document.elementFromPoint(event.clientX, event.clientY); // IE Yes!
 
     const dragStopEvent = new DragStopSensorEvent({
       clientX: event.clientX,
