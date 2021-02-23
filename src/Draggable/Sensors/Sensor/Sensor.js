@@ -109,6 +109,7 @@ export default class Sensor {
   trigger(element, sensorEvent) {
     const event = document.createEvent('Event');
     event.detail = sensorEvent;
+    // 事件类继承自 AbstractEvent 类，有一个 type getter 从返回类构造器的静态属性 type 。
     event.initEvent(sensorEvent.type, true, true);
     element.dispatchEvent(event);
     this.lastEvent = sensorEvent;
