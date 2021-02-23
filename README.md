@@ -13,13 +13,6 @@
 
 **We are still looking for more maintainers!** If anyone is interested in answering / triaging issues, reviewing / rejecting / approving PRs, and authoring code for bug fixes / new features — please send an email to `curtis.dulmage (at) shopify (dot) com`. You may be asked a few questions before obtaining collaboration permission, but if everything checks out, we will happily add you as a collaborator.
 
-**Current maintainers are:**
-
-- [@fdietze](https://github.com/fdietze)
-- [@josh18](https://github.com/josh18)
-
-Please ping the above handles when putting up PRs.
-
 ---
 
 Get complete control over drag and drop behaviour with Draggable! Draggable abstracts
@@ -64,19 +57,19 @@ or via CDN
 
 ```html
 <!-- Entire bundle -->
-<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.8/lib/draggable.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.12/lib/draggable.bundle.js"></script>
 <!-- legacy bundle for older browsers (IE11) -->
-<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.8/lib/draggable.bundle.legacy.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.12/lib/draggable.bundle.legacy.js"></script>
 <!-- Draggable only -->
-<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.8/lib/draggable.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.12/lib/draggable.js"></script>
 <!-- Sortable only -->
-<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.8/lib/sortable.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.12/lib/sortable.js"></script>
 <!-- Droppable only -->
-<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.8/lib/droppable.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.12/lib/droppable.js"></script>
 <!-- Swappable only -->
-<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.8/lib/swappable.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.12/lib/swappable.js"></script>
 <!-- Plugins only -->
-<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.8/lib/plugins.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.12/lib/plugins.js"></script>
 ```
 
 ## Browser Compatibility
@@ -127,10 +120,17 @@ You can find the documentation for each module within their respective directori
   - [ResizeMirror](src/Plugins/ResizeMirror)
   - [Snappable](src/Plugins/Snappable)
   - [SwapAnimation](src/Plugins/SwapAnimation)
+  - [SortAnimation](src/Plugins/SortAnimation)
 - [Sortable](src/Sortable)
   - [SortableEvent](src/Sortable/SortableEvent)
 - [Swappable](src/Swappable)
   - [SwappableEvent](src/Swappable/SwappableEvent)
+
+## TypeScript
+
+Draggable includes [TypeScript](http://typescriptlang.org) definitions.
+
+[Documentation](doc/typescript.md)
 
 ## Running examples
 
@@ -151,7 +151,7 @@ For more information, please checkout the [contributing document](https://github
 
 ## Roadmap
 
-We are currently working on `v1.0.0-beta.8`. Check out the [project board](https://github.com/Shopify/draggable/projects/3) to see tasks and follow progress on the release. Any Pull Requests should be pointed against the feature branch `v1.0.0-beta.8`.
+We are currently working on `v1.0.0-beta.12`. Check out the [project board](https://github.com/Shopify/draggable/projects/3) to see tasks and follow progress on the release. Any Pull Requests should be pointed against the feature branch `v1.0.0-beta.12`.
 
 ## Related resources
 

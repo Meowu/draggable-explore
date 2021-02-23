@@ -1,6 +1,6 @@
 {
   "name": "@shopify/draggable",
-  "version": "1.0.0-beta.9",
+  "version": "1.0.0-beta.12",
   "private": false,
   "license": "MIT",
   "description": "The JavaScript Drag & Drop library your grandparents warned you about.",
@@ -34,7 +34,7 @@
     "watch": "node scripts/watch.js",
     "prepare": "yarn build:development",
     "prepublishOnly": "yarn build:production",
-    "lint": "eslint ./src --max-warnings 0",
+    "lint": "eslint ./src ./scripts --max-warnings 0",
     "esdoc": "esdoc -c esdoc.json",
     "test": "jest --config config.json",
     "test-ci": "jest --config config.json --coverage && codecov",

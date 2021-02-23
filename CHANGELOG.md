@@ -1,16 +1,55 @@
 # Changelog
 
+## v1.0.0-beta.12 - 2020-09-29
+
+### Added
+
+- Added `drag:stopped` event that will be fired after drag finished
+- Support specifying an array of class name to Draggable `classes` option
+
+### Changed
+
+- Fixes incorrect `oldIndex` value when working with **nested sortable**
+- Fixes wrong same container checking bug when working with **nested sortable** 
+- Fixes bug `drag:start` event was triggered  during the delay time
+- Fixes missing `overContainer` property in **DragOutEvent**
+
+## v1.0.0-beta.11 - 2020-07-14
+
+### Added
+
+- Added `exclude` option to allow disable default plugins and sensors
+- Added missing plugin types
+- Support set the type of callback function according to the event type
+
+### Changed
+
+- Fixes drag start concurrency (`delay` and `distance` options)
+- Fixes text in mirror blurry
+- Fixes accidently append mirror
+
+## v1.0.0-beta.10 - 2020-06-18
+
+### Added
+
+- Added `SortAnimation` plugin
+- Added `distance?: number` to DraggableOptions TS interface
+
+### Changed
+
+- Fix mirror dimensions when `constrainDimensions` is active and not using fixed item width
+
 ## v1.0.0-beta.9 - 2019-08-26
 
 ### Added
 
-* Added `distance` option
-* Added `thresholdX` and `thresholdY` mirror options
+- Added `distance` option
+- Added `thresholdX` and `thresholdY` mirror options
 
 ### Changed
 
-* Fixes preventing of contextmenu in MouseSensor
-* Fixes SortableEvent `over` and `overContainer` giving incorrect properties
+- Fixes preventing of contextmenu in MouseSensor
+- Fixes SortableEvent `over` and `overContainer` giving incorrect properties
 
 ## v1.0.0-beta.8 - 2018-09-07
 

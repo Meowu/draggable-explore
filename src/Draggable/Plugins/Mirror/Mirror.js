@@ -275,7 +275,7 @@ export default class Mirror extends AbstractPlugin {
    * @private
    */
   [onMirrorCreated]({mirror, source, sensorEvent}) {
-    const mirrorClass = this.draggable.getClassNameFor('mirror');
+    const mirrorClasses = this.draggable.getClassNamesFor('mirror');
 
     const setState = ({mirrorOffset, initialX, initialY, ...args}) => {
       this.mirrorOffset = mirrorOffset;
@@ -286,11 +286,13 @@ export default class Mirror extends AbstractPlugin {
       return {mirrorOffset, initialX, initialY, ...args};
     };
 
+    mirror.style.display = 'none';
+
     const initialState = {
       mirror,
       source,
       sensorEvent,
-      mirrorClass,
+      mirrorClasses,
       scrollOffset: this.scrollOffset,
       options: this.options,
       passedThreshX: true,
@@ -424,6 +426,7 @@ function resetMirror({mirror, source, options, ...args}) {
       offsetWidth = computedSourceStyles.getPropertyValue('width');
     }
 
+    mirror.style.display = null;
     mirror.style.position = 'fixed';
     mirror.style.pointerEvents = 'none';
     mirror.style.top = 0;
@@ -443,14 +446,14 @@ function resetMirror({mirror, source, options, ...args}) {
  * Applys mirror class on mirror element
  * @param {Object} state
  * @param {HTMLElement} state.mirror
- * @param {String} state.mirrorClass
+ * @param {String[]} state.mirrorClasses
  * @return {Promise}
  * @private
  */
-function addMirrorClasses({mirror, mirrorClass, ...args}) {
+function addMirrorClasses({mirror, mirrorClasses, ...args}) {
   return withPromise((resolve) => {
-    mirror.classList.add(mirrorClass);
-    resolve({mirror, mirrorClass, ...args});
+    mirror.classList.add(...mirrorClasses);
+    resolve({mirror, mirrorClasses, ...args});
   });
 }
 
@@ -510,11 +513,11 @@ function positionMirror({withFrame = false, initial = false} = {}) {
           const x = passedThreshX
             ? Math.round((sensorEvent.clientX - mirrorOffset.left - scrollOffset.x) / (options.thresholdX || 1)) *
               (options.thresholdX || 1)
-            : lastMovedX;
+            : Math.round(lastMovedX);
           const y = passedThreshY
             ? Math.round((sensorEvent.clientY - mirrorOffset.top - scrollOffset.y) / (options.thresholdY || 1)) *
               (options.thresholdY || 1)
-            : lastMovedY;
+            : Math.round(lastMovedY);
 
           if ((options.xAxis && options.yAxis) || initial) {
             mirror.style.transform = `translate3d(${x}px, ${y}px, 0)`;

@@ -15,12 +15,14 @@ import {
   DragOverEvent,
   DragStopEvent,
   DragPressureEvent,
+  DragStoppedEvent,
 } from './DragEvent';
 
 const onDragStart = Symbol('onDragStart');
 const onDragMove = Symbol('onDragMove');
 const onDragStop = Symbol('onDragStop');
 const onDragPressure = Symbol('onDragPressure');
+const dragStop = Symbol('dragStop');
 
 /**
  * @const {Object} defaultAnnouncements
@@ -47,11 +49,15 @@ const defaultClasses = {
 export const defaultOptions = {
   draggable: '.draggable-source',
   handle: null,
-  delay: 100,
+  delay: {},
   distance: 0,
   placedTimeout: 800,
   plugins: [],
   sensors: [],
+  exclude: {
+    plugins: [],
+    sensors: [],
+  },
 };
 
 /**
@@ -71,6 +77,16 @@ export default class Draggable {
    * @type {Object}
    */
   static Plugins = {Announcement, Focusable, Mirror, Scrollable};
+
+  /**
+   * Default sensors draggable uses
+   * @static
+   * @property {Object} Sensors
+   * @property {MouseSensor} Sensors.MouseSensor
+   * @property {TouchSensor} Sensors.TouchSensor
+   * @type {Object}
+   */
+  static Sensors = {MouseSensor, TouchSensor};
 
   /**
    * Draggable constructor.
@@ -102,6 +118,10 @@ export default class Draggable {
       announcements: {
         ...defaultAnnouncements,
         ...(options.announcements || {}),
+      },
+      exclude: {
+        plugins: (options.exclude && options.exclude.plugins) || [],
+        sensors: (options.exclude && options.exclude.sensors) || [],
       },
     };
 
@@ -137,14 +157,19 @@ export default class Draggable {
     this[onDragMove] = this[onDragMove].bind(this);
     this[onDragStop] = this[onDragStop].bind(this);
     this[onDragPressure] = this[onDragPressure].bind(this);
+    this[dragStop] = this[dragStop].bind(this);
 
     document.addEventListener('drag:start', this[onDragStart], true);
     document.addEventListener('drag:move', this[onDragMove], true);
     document.addEventListener('drag:stop', this[onDragStop], true);
     document.addEventListener('drag:pressure', this[onDragPressure], true);
 
-    const defaultPlugins = Object.values(Draggable.Plugins).map((Plugin) => Plugin);
-    const defaultSensors = [MouseSensor, TouchSensor];
+    const defaultPlugins = Object.values(Draggable.Plugins).filter(
+      (Plugin) => !this.options.exclude.plugins.includes(Plugin),
+    );
+    const defaultSensors = Object.values(Draggable.Sensors).filter(
+      (sensor) => !this.options.exclude.sensors.includes(sensor),
+    );
 
     this.addPlugin(...[...defaultPlugins, ...this.options.plugins]);
     this.addSensor(...[...defaultSensors, ...this.options.sensors]);
@@ -156,7 +181,6 @@ export default class Draggable {
     this.on('mirror:created', ({mirror}) => (this.mirror = mirror));
     this.on('mirror:destroy', () => (this.mirror = null));
 
-    // 初始化后 dragging 实例存在，表示 isDragging 。
     this.trigger(draggableInitializedEvent);
   }
 
@@ -307,7 +331,23 @@ export default class Draggable {
    * @return {String|null}
    */
   getClassNameFor(name) {
-    return this.options.classes[name];
+    return this.getClassNamesFor(name)[0];
+  }
+
+  /**
+   * Returns class names for class identifier
+   * @return {String[]}
+   */
+  getClassNamesFor(name) {
+    const classNames = this.options.classes[name];
+
+    if (classNames instanceof Array) {
+      return classNames;
+    } else if (typeof classNames === 'string' || classNames instanceof String) {
+      return [classNames];
+    } else {
+      return [];
+    }
   }
 
   /**
@@ -343,13 +383,20 @@ export default class Draggable {
   }
 
   /**
+   * Cancel dragging immediately
+   */
+  cancel() {
+    this[dragStop]();
+  }
+
+  /**
    * Drag start handler
    * @private
    * @param {Event} event - DOM Drag event
    */
   [onDragStart](event) {
     const sensorEvent = getSensorEvent(event);
-    const {target, container} = sensorEvent;
+    const {target, container, originalSource} = sensorEvent;
 
     if (!this.containers.includes(container)) {
       return;
@@ -360,20 +407,13 @@ export default class Draggable {
       return;
     }
 
-    // Find draggable source element
-    this.originalSource = closest(target, this.options.draggable);
+    this.originalSource = originalSource;
     this.sourceContainer = container;
-
-    // duplicated code, this should be placed 10 loc before.
-    if (!this.originalSource) {
-      sensorEvent.cancel();
-      return;
-    }
 
     if (this.lastPlacedSource && this.lastPlacedContainer) {
       clearTimeout(this.placedTimeoutID);
-      this.lastPlacedSource.classList.remove(this.getClassNameFor('source:placed'));
-      this.lastPlacedContainer.classList.remove(this.getClassNameFor('container:placed'));
+      this.lastPlacedSource.classList.remove(...this.getClassNamesFor('source:placed'));
+      this.lastPlacedContainer.classList.remove(...this.getClassNamesFor('container:placed'));
     }
 
     this.source = this.originalSource.cloneNode(true);
@@ -389,19 +429,19 @@ export default class Draggable {
 
     this.trigger(dragEvent);
 
-    this.dragging = !dragEvent.canceled(); // we may call event.cancel() to stop it.
+    this.dragging = !dragEvent.canceled();
 
     if (dragEvent.canceled()) {
       this.source.parentNode.removeChild(this.source);
-      this.originalSource.style.display = null; // will this differentiate with 'none' ?
+      this.originalSource.style.display = null;
       return;
     }
 
-    this.originalSource.classList.add(this.getClassNameFor('source:original'));
-    this.source.classList.add(this.getClassNameFor('source:dragging'));
-    this.sourceContainer.classList.add(this.getClassNameFor('container:dragging'));
-    document.body.classList.add(this.getClassNameFor('body:dragging'));
-    applyUserSelect(document.body, 'none'); // disable select event.
+    this.originalSource.classList.add(...this.getClassNamesFor('source:original'));
+    this.source.classList.add(...this.getClassNamesFor('source:dragging'));
+    this.sourceContainer.classList.add(...this.getClassNamesFor('container:dragging'));
+    document.body.classList.add(...this.getClassNamesFor('body:dragging'));
+    applyUserSelect(document.body, 'none');
 
     requestAnimationFrame(() => {
       const oldSensorEvent = getSensorEvent(event);
@@ -435,7 +475,7 @@ export default class Draggable {
       sensorEvent,
     });
 
-    this.trigger(dragMoveEvent); // 先触发 move 事件；
+    this.trigger(dragMoveEvent);
 
     if (dragMoveEvent.canceled()) {
       sensorEvent.cancel();
@@ -456,10 +496,10 @@ export default class Draggable {
         sourceContainer: container,
         sensorEvent,
         over: this.currentOver,
+        overContainer: this.currentOverContainer,
       });
 
-      //  set currentOver if over new target.
-      this.currentOver.classList.remove(this.getClassNameFor('draggable:over'));
+      this.currentOver.classList.remove(...this.getClassNamesFor('draggable:over'));
       this.currentOver = null;
 
       this.trigger(dragOutEvent);
@@ -474,14 +514,14 @@ export default class Draggable {
         overContainer: this.currentOverContainer,
       });
 
-      this.currentOverContainer.classList.remove(this.getClassNameFor('container:over'));
+      this.currentOverContainer.classList.remove(...this.getClassNamesFor('container:over'));
       this.currentOverContainer = null;
 
       this.trigger(dragOutContainerEvent);
     }
 
     if (isOverContainer) {
-      overContainer.classList.add(this.getClassNameFor('container:over'));
+      overContainer.classList.add(...this.getClassNamesFor('container:over'));
 
       const dragOverContainerEvent = new DragOverContainerEvent({
         source: this.source,
@@ -497,7 +537,7 @@ export default class Draggable {
     }
 
     if (isOverDraggable) {
-      target.classList.add(this.getClassNameFor('draggable:over'));
+      target.classList.add(...this.getClassNamesFor('draggable:over'));
 
       const dragOverEvent = new DragOverEvent({
         source: this.source,
@@ -519,7 +559,7 @@ export default class Draggable {
    * @private
    * @param {Event} event - DOM Drag event
    */
-  [onDragStop](event) {
+  [dragStop](event) {
     if (!this.dragging) {
       return;
     }
@@ -529,7 +569,7 @@ export default class Draggable {
     const dragStopEvent = new DragStopEvent({
       source: this.source,
       originalSource: this.originalSource,
-      sensorEvent: event.sensorEvent,
+      sensorEvent: event ? event.sensorEvent : null,
       sourceContainer: this.sourceContainer,
     });
 
@@ -539,21 +579,20 @@ export default class Draggable {
     this.source.parentNode.removeChild(this.source);
     this.originalSource.style.display = '';
 
-    // what's the difference between source and originalSource?
-    this.source.classList.remove(this.getClassNameFor('source:dragging'));
-    this.originalSource.classList.remove(this.getClassNameFor('source:original'));
-    this.originalSource.classList.add(this.getClassNameFor('source:placed'));
-    this.sourceContainer.classList.add(this.getClassNameFor('container:placed'));
-    this.sourceContainer.classList.remove(this.getClassNameFor('container:dragging'));
-    document.body.classList.remove(this.getClassNameFor('body:dragging'));
-    applyUserSelect(document.body, ''); // enable userSelect?
+    this.source.classList.remove(...this.getClassNamesFor('source:dragging'));
+    this.originalSource.classList.remove(...this.getClassNamesFor('source:original'));
+    this.originalSource.classList.add(...this.getClassNamesFor('source:placed'));
+    this.sourceContainer.classList.add(...this.getClassNamesFor('container:placed'));
+    this.sourceContainer.classList.remove(...this.getClassNamesFor('container:dragging'));
+    document.body.classList.remove(...this.getClassNamesFor('body:dragging'));
+    applyUserSelect(document.body, '');
 
     if (this.currentOver) {
-      this.currentOver.classList.remove(this.getClassNameFor('draggable:over'));
+      this.currentOver.classList.remove(...this.getClassNamesFor('draggable:over'));
     }
 
     if (this.currentOverContainer) {
-      this.currentOverContainer.classList.remove(this.getClassNameFor('container:over'));
+      this.currentOverContainer.classList.remove(...this.getClassNamesFor('container:over'));
     }
 
     this.lastPlacedSource = this.originalSource;
@@ -561,22 +600,38 @@ export default class Draggable {
 
     this.placedTimeoutID = setTimeout(() => {
       if (this.lastPlacedSource) {
-        this.lastPlacedSource.classList.remove(this.getClassNameFor('source:placed'));
+        this.lastPlacedSource.classList.remove(...this.getClassNamesFor('source:placed'));
       }
 
       if (this.lastPlacedContainer) {
-        this.lastPlacedContainer.classList.remove(this.getClassNameFor('container:placed'));
+        this.lastPlacedContainer.classList.remove(...this.getClassNamesFor('container:placed'));
       }
 
       this.lastPlacedSource = null;
       this.lastPlacedContainer = null;
-    }, this.options.placedTimeout); // why we need placedTimeout?
+    }, this.options.placedTimeout);
+
+    const dragStoppedEvent = new DragStoppedEvent({
+      source: this.source,
+      originalSource: this.originalSource,
+      sensorEvent: event ? event.sensorEvent : null,
+      sourceContainer: this.sourceContainer,
+    });
+
+    this.trigger(dragStoppedEvent);
 
     this.source = null;
     this.originalSource = null;
     this.currentOverContainer = null;
     this.currentOver = null;
     this.sourceContainer = null;
+  }
+
+  /**
+   * Drag stop handler
+   */
+  [onDragStop](event) {
+    this[dragStop](event);
   }
 
   /**
@@ -603,7 +658,7 @@ export default class Draggable {
 }
 
 function getSensorEvent(event) {
-  return event.detail; // Whatever data the event was initialized with.
+  return event.detail;
 }
 
 function applyUserSelect(element, value) {

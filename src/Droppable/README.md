@@ -1,26 +1,44 @@
 ## Droppable
 
 Droppable is built on top of Draggable and allows you to declare draggable and droppable elements via options.
-Droppable fires two events on top of the draggable events: `droppable:dropped` and `droppable:returned`.
+Droppable fires four events on top of the draggable events: `droppable:start`, `droppable:dropped`, `droppable:returned` and `droppable:stop`.
 Droppable elements must begin in an occupied dropzone (see below, [Classes](#classes) and example),
 so they may returned if the drag is canceled or returned.
 
-### Import
+### Usage
 
+- ES6:
 ```js
 import { Droppable } from '@shopify/draggable';
+// Or
+// import Droppable from '@shopify/draggable/lib/droppable';
+
+const droppable = new Droppable(document.querySelectorAll('.container'), {
+  draggable: '.item',
+  dropzone: '.dropzone'
+});
 ```
 
-```js
-import Droppable from '@shopify/draggable/lib/droppable';
-```
-
+- Browser (All Bundle):
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.8/lib/draggable.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.12/lib/draggable.bundle.js"></script>
+<script>
+    const droppable = new Draggable.Droppable(document.querySelectorAll('.container'), {
+      draggable: '.item',
+      dropzone: '.dropzone'
+    });
+</script>
 ```
 
+- Browser (Standalone):
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.8/lib/droppable.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.12/lib/droppable.js"></script>
+<script>
+    const droppable = new Droppable.default(document.querySelectorAll('.container'), {
+      draggable: '.item',
+      dropzone: '.dropzone'
+    });
+</script>
 ```
 
 ### API
@@ -39,13 +57,17 @@ elements within the `containers`.
 
 Check out [Draggable events](../Draggable#events) for the base events
 
-| Name                                      | Description                                                     | Cancelable | Cancelable action |
-| ----------------------------------------- | --------------------------------------------------------------- | ---------- | ----------------- |
-| [`droppable:dropped`][droppabledropped]   | Gets fired when dropping draggable element into a dropzone      | true       | Prevents drop     |
-| [`droppable:returned`][droppablereturned] | Gets fired when draggable elements returns to original dropzone | true       | Prevents return   |
+| Name                                      | Description                                                               | Cancelable | Cancelable action |
+| ----------------------------------------- | ------------------------------------------------------------------------- | ---------- | ----------------- |
+| [`droppable:start`][droppablestart]       | Gets fired before dropping the draggable element into a dropzone          | true       | Prevents drag     |
+| [`droppable:dropped`][droppabledropped]   | Gets fired when dropping draggable element into a dropzone                | true       | Prevents drop     |
+| [`droppable:returned`][droppablereturned] | Gets fired when draggable elements returns to original dropzone           | true       | Prevents return   |
+| [`droppable:stop`][droppablestop]         | Gets fired before dropping the draggable element into a dropzone element  | false      | -                 |
 
+[droppablestart]: DroppableEvent#droppablestartevent
 [droppabledropped]: DroppableEvent#droppabledroppedevent
 [droppablereturned]: DroppableEvent#droppablereturnedevent
+[droppablestop]: DroppableEvent#droppablestopevent
 
 ### Classes
 

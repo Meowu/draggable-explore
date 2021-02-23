@@ -1,26 +1,41 @@
 ## Sortable
 
 Sortable is built on top of Draggable and allows you to reorder elements. It maintains the order internally and fires
-three events on top of the draggable events: `sortable:start`, `sortable:sort`, `sortable:sorted` and `sortable:stop`.
+four events on top of the draggable events: `sortable:start`, `sortable:sort`, `sortable:sorted` and `sortable:stop`.
 
 Make sure to nest draggable elements as immediate children elements to their corresponding containers, this is a requirement for `Sortable`.
 
-### Import
+### Usage
 
+- ES6:
 ```js
 import { Sortable } from '@shopify/draggable';
+// Or
+// import Sortable from '@shopify/draggable/lib/sortable';
+
+const sortable = new Sortable(document.querySelectorAll('ul'), {
+  draggable: 'li'
+});
 ```
 
-```js
-import Sortable from '@shopify/draggable/lib/sortable';
-```
-
+- Browser (All Bundle):
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.8/lib/draggable.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.12/lib/draggable.bundle.js"></script>
+<script>
+    const sortable = new Draggable.Sortable(document.querySelectorAll('ul'), {
+      draggable: 'li'
+    });
+</script>
 ```
 
+- Browser (Standalone):
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.8/lib/sortable.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.12/lib/sortable.js"></script>
+<script>
+    const sortable = new Sortable.default(document.querySelectorAll('ul'), {
+      draggable: 'li'
+    });
+</script>
 ```
 
 ### API
